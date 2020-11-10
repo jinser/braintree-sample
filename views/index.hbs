@@ -1,0 +1,101 @@
+<div id="dropin-wrapper">
+  <div id="checkout-message"></div>
+  <div id="dropin-container"></div>
+  <label id="amount-label">Enter Amount: </label>
+  <input type="text" value="10" id="payAmount"></input>
+  <br>
+  <br>
+  <br>
+  <button id="submit-button">Submit payment</button>
+  <button id="verify-card">Verify Card</button>
+  <br>
+  
+</div>
+<script>
+  var button = document.querySelector('#submit-button');
+  var verifyButton = document.querySelector('#verify-card');
+  
+  braintree.dropin.create({
+    // Insert your tokenization key here
+    authorization: 'sandbox_kt2z3y7g_bzpncr8dsp2qc6sy',
+    container: '#dropin-container'
+  }, function (createErr, instance) {
+    button.addEventListener('click', function () {
+		console.log(payAmount.value);
+      instance.requestPaymentMethod(function (requestPaymentMethodErr, payload) {
+        // When the user clicks on the 'Submit payment' button this code will send the
+        // encrypted payment information in a variable called a payment method nonce
+        $.ajax({
+          type: 'POST',
+          url: '/checkout',
+          data: {'paymentMethodNonce': payload.nonce, 'amt': payAmount.value}
+        }).done(function(result) {
+          // Tear down the Drop-in UI
+          instance.teardown(function (teardownErr) {
+            if (teardownErr) {
+              console.error('Could not tear down Drop-in UI!');
+            } else {
+              console.info('Drop-in UI has been torn down!');
+              // Remove the 'Submit payment' button
+              $('#submit-button').remove();
+			  $('#payAmount').remove();
+			  $('#amount-label').remove();
+			  $('#verify-card').remove();
+            }
+          });
+
+          if (result.success) {
+		  console.log(result);
+            $('#checkout-message').html('<h1>Success</h1><p>Your Drop-in UI is working! Check your <a href="https://sandbox.braintreegateway.com/login">sandbox Control Panel</a> for your test transactions.</p><p>Refresh to try another transaction.</p>');
+          } else {
+            console.log(result);
+			var errStatus = result.transaction.status;
+			
+			if(errStatus == 'processor_declined') {
+				$('#checkout-message').html('<h1>Error</h1><p>Check your console. <br> error message is: <i>Insufficient Funds<\i>. <br> error status: processor_declined. <br> <br> Refresh to try another transaction.</p>');
+			}
+			else if(errStatus == 'failed') {
+				$('#checkout-message').html('<h1>Error</h1><p>Check your console. <br> error message is: <i>Processor Network Unavailable - Try Again<\i>. <br> error status: failed. <br> <br> Refresh to try another transaction.</p>');
+			}
+			else if(errStatus == 'gateway_rejected') {
+				$('#checkout-message').html('<h1>Error</h1><p>Check your console. <br> error message is: <i>"Gateway Rejected: application_incomplete"<\i>. <br> error status: gateway_rejected. <br> <br> Refresh to try another transaction.</p>');
+			}
+          }
+        });
+      });
+    });
+	
+	verifyButton.addEventListener('click', function () {
+		instance.requestPaymentMethod(function (requestPaymentMethodErr, payload) {
+			$.ajax({
+			  type: 'POST',
+			  url: '/verify',
+			  data: {'paymentMethodNonce': payload.nonce}
+			}).done(function(result) {
+			  // Tear down the Drop-in UI
+			  instance.teardown(function (teardownErr) {
+				if (teardownErr) {
+				  console.error('Could not tear down Drop-in UI!');
+				} else {
+				  console.info('Drop-in UI has been torn down!');
+				  // Remove the 'Submit payment' button
+				  $('#submit-button').remove();
+				  $('#payAmount').remove();
+				  $('#amount-label').remove();
+				  $('#verify-card').remove();
+				}
+			  });
+			  if (result.success) {
+				console.log(result);
+				$('#checkout-message').html('<h1>Success</h1><p>Card Verification is Successful! Check your <a href="https://sandbox.braintreegateway.com/login">sandbox Control Panel</a>.</p><p>Refresh to try another verification.</p>');
+			} else {
+				console.log(result);
+				$('#checkout-message').html('<h1>Error</h1><p>Card Verification has failed. Check your <a href="https://sandbox.braintreegateway.com/login">sandbox Control Panel</a>.</p><p>Refresh to try another verification.</p>');
+			}
+		});
+		
+	});
+	});
+	
+  });
+</script>
