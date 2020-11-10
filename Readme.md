@@ -4,6 +4,8 @@ Simple sample of Braintree Drop-in UI features following the [tutorial](https://
 
 This is a single page app with 2 routes (checkout.js and verify.js). 
 
+Try it out here: https://braintree-demo-ui-sample.herokuapp.com/
+
 ## Setup and Deployment
 Install all dependencies with
 `npm install`
