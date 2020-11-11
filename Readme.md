@@ -31,7 +31,7 @@ Follow the ***Transaction amounts *** section of the online [documentation](http
 For an example of a failed processor response, you could try entering a valid test credit card number with an amount of 2001 as seen in the screenshot below:
 ![](img/dashboard_processor_response_1.png)
 
-Upon clicking on the Submit Payment button, you should see the failed status with the error message like so:
+Upon clicking on the Submit Payment button, you should see the failed status with the error message:
 ![](img/dashboard_processor_response_2.png)
 
 #### 3) Testing Unsuccessful Card Verification Response
@@ -41,5 +41,6 @@ To conduct this test, follow the ***Card numbers for unsuccessful verification**
 ![](img/dashboard_verify_card.png)
 3) You should see a Failed status for test values that are meant to fail like in the screenshot below:
 ![](img/dashboard_verify_card_failed.png)
+
 For successful cases, try out the test values under the ***Valid card numbers*** section of the same document. You should see a Success status like in the screenshot below:
 ![](img/dashboard_verify_card_successful.png)
